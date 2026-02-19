@@ -1,47 +1,95 @@
-interface CustomerRow {
-    customer_name: string;
-    total_orders: number;
-    total_spent: number;
-    customer_type: string;
-}
-
-export default async function CustomersReport() {
-    const res = await fetch("http://localhost:3000/api/reports/customers", {
-        cache: "no-store",
-    });
-
-    const data = await res.json();
-
-    // 🔥 Validación importante
-    const customers: CustomerRow[] = Array.isArray(data) ? data : [];
-
+export default function Dashboard() {
     return (
-        <main style={{ padding: 24 }}>
-            <h1>Valor de Clientes</h1>
-            <p>Insight: segmentación y valor de vida del cliente.</p>
+        <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-950 p-10">
 
-            <h3>KPI: Cliente Top → {customers[0]?.customer_name ?? "N/A"}</h3>
+            {/* Contenedor */}
+            <div className="max-w-5xl mx-auto">
 
-            <table border={1} cellPadding={6}>
-                <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Órdenes</th>
-                    <th>Total Gastado</th>
-                    <th>Tipo</th>
-                </tr>
-                </thead>
-                <tbody>
-                {customers.map((row) => (
-                    <tr key={row.customer_name}>
-                        <td>{row.customer_name}</td>
-                        <td>{row.total_orders}</td>
-                        <td>{row.total_spent}</td>
-                        <td>{row.customer_type}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                {/* Título */}
+                <div className="mb-10 text-center">
+                    <h1 className="text-4xl font-bold text-purple-300 drop-shadow-lg">
+                        Dashboard de Reportes
+                    </h1>
+                    <p className="text-gray-400 mt-2">
+                        Panel principal de análisis del sistema
+                    </p>
+                </div>
+
+                {/* Grid de tarjetas */}
+                <div className="grid md:grid-cols-2 gap-6">
+
+                    <a
+                        href="/reports/sales"
+                        className="bg-black/60 backdrop-blur-md border border-purple-700 hover:border-purple-400
+                                   rounded-2xl p-6 transition duration-300 hover:scale-105
+                                   hover:shadow-purple-500/30 shadow-lg group"
+                    >
+                        <h2 className="text-xl font-semibold text-purple-300 group-hover:text-purple-200">
+                            Ventas Diarias
+                        </h2>
+                        <p className="text-gray-400 mt-2 text-sm">
+                            Consulta el desempeño de ventas por día.
+                        </p>
+                    </a>
+
+                    <a
+                        href="/reports/payment-mix"
+                        className="bg-black/60 backdrop-blur-md border border-purple-700 hover:border-purple-400
+                                   rounded-2xl p-6 transition duration-300 hover:scale-105
+                                   hover:shadow-purple-500/30 shadow-lg group"
+                    >
+                        <h2 className="text-xl font-semibold text-purple-300 group-hover:text-purple-200">
+                            Mezcla de Pagos
+                        </h2>
+                        <p className="text-gray-400 mt-2 text-sm">
+                            Distribución de métodos de pago utilizados.
+                        </p>
+                    </a>
+
+                    <a
+                        href="/reports/inventory"
+                        className="bg-black/60 backdrop-blur-md border border-purple-700 hover:border-purple-400
+                                   rounded-2xl p-6 transition duration-300 hover:scale-105
+                                   hover:shadow-purple-500/30 shadow-lg group"
+                    >
+                        <h2 className="text-xl font-semibold text-purple-300 group-hover:text-purple-200">
+                            Inventario en Riesgo
+                        </h2>
+                        <p className="text-gray-400 mt-2 text-sm">
+                            Productos con bajo nivel de stock.
+                        </p>
+                    </a>
+
+                    <a
+                        href="/reports/customers"
+                        className="bg-black/60 backdrop-blur-md border border-purple-700 hover:border-purple-400
+                                   rounded-2xl p-6 transition duration-300 hover:scale-105
+                                   hover:shadow-purple-500/30 shadow-lg group"
+                    >
+                        <h2 className="text-xl font-semibold text-purple-300 group-hover:text-purple-200">
+                            Valor del Cliente
+                        </h2>
+                        <p className="text-gray-400 mt-2 text-sm">
+                            Análisis de clientes más valiosos.
+                        </p>
+                    </a>
+
+                    <a
+                        href="/reports/products"
+                        className="bg-black/60 backdrop-blur-md border border-purple-700 hover:border-purple-400
+                                   rounded-2xl p-6 transition duration-300 hover:scale-105
+                                   hover:shadow-purple-500/30 shadow-lg group md:col-span-2"
+                    >
+                        <h2 className="text-xl font-semibold text-purple-300 group-hover:text-purple-200">
+                            Top Productos
+                        </h2>
+                        <p className="text-gray-400 mt-2 text-sm">
+                            Productos con mejor rendimiento en ventas.
+                        </p>
+                    </a>
+
+                </div>
+            </div>
         </main>
     );
 }

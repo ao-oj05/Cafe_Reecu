@@ -22,7 +22,7 @@ services:
 
   web:
     build:
-      context: ./frontend
+      context: ./cafeteria
       dockerfile: Dockerfile
     container_name: nextjs_app
     restart: always
