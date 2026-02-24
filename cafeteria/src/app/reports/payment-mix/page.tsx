@@ -89,7 +89,7 @@ export default async function PaymentMixReport() {
                 </div>
 
                 {/* CARDS POR MÉTODO */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                     {data.map((row) => {
                         const pct = Number(row.pct_del_total);
 
@@ -137,53 +137,53 @@ export default async function PaymentMixReport() {
                 <div className="bg-zinc-900 border border-purple-900 rounded-xl overflow-hidden">
                     <table className="w-full text-sm">
                         <thead className="bg-purple-950 text-purple-300 uppercase text-xs tracking-wider">
-                        <tr>
-                            <th className="p-3 text-left">Método</th>
-                            <th className="p-3 text-right">Transacciones</th>
-                            <th className="p-3 text-right">Total</th>
-                            <th className="p-3 text-right">% Total</th>
-                            <th className="p-3 text-right">Ticket</th>
-                            <th className="p-3 text-right">Min</th>
-                            <th className="p-3 text-right">Max</th>
-                        </tr>
+                            <tr>
+                                <th className="p-3 text-left">Método</th>
+                                <th className="p-3 text-right">Transacciones</th>
+                                <th className="p-3 text-right">Total</th>
+                                <th className="p-3 text-right">% Total</th>
+                                <th className="p-3 text-right">Ticket</th>
+                                <th className="p-3 text-right">Min</th>
+                                <th className="p-3 text-right">Max</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {data.map((row) => (
-                            <tr
-                                key={row.metodo_pago}
-                                className="border-t border-zinc-800 hover:bg-zinc-800/60 transition"
-                            >
-                                <td className="p-3 capitalize text-purple-300">
-                                    {row.metodo_pago}
-                                </td>
-                                <td className="p-3 text-right">
-                                    {row.num_transacciones}
-                                </td>
-                                <td className="p-3 text-right text-purple-400 font-medium">
-                                    ${Number(row.total_recaudado).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                                </td>
-                                <td className="p-3 text-right">
-                                    {Number(row.pct_del_total).toFixed(1)}%
-                                </td>
-                                <td className="p-3 text-right">
-                                    ${Number(row.ticket_promedio_pago).toFixed(2)}
-                                </td>
-                                <td className="p-3 text-right">
-                                    ${Number(row.pago_minimo).toFixed(2)}
-                                </td>
-                                <td className="p-3 text-right">
-                                    ${Number(row.pago_maximo).toFixed(2)}
-                                </td>
-                            </tr>
-                        ))}
+                            {data.map((row) => (
+                                <tr
+                                    key={row.metodo_pago}
+                                    className="border-t border-zinc-800 hover:bg-zinc-800/60 transition"
+                                >
+                                    <td className="p-3 capitalize text-purple-300">
+                                        {row.metodo_pago}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        {row.num_transacciones}
+                                    </td>
+                                    <td className="p-3 text-right text-purple-400 font-medium">
+                                        ${Number(row.total_recaudado).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        {Number(row.pct_del_total).toFixed(1)}%
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        ${Number(row.ticket_promedio_pago).toFixed(2)}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        ${Number(row.pago_minimo).toFixed(2)}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        ${Number(row.pago_maximo).toFixed(2)}
+                                    </td>
+                                </tr>
+                            ))}
 
-                        {data.length === 0 && (
-                            <tr>
-                                <td colSpan={7} className="p-6 text-center text-gray-500">
-                                    No hay datos de pagos.
-                                </td>
-                            </tr>
-                        )}
+                            {data.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className="p-6 text-center text-gray-500">
+                                        No hay datos de pagos.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

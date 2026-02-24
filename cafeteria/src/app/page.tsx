@@ -82,12 +82,13 @@ export default function Dashboard() {
                                    rounded-3xl p-8 md:col-span-2
                                    transition-all duration-300
                                    hover:border-purple-500
-                                   hover:shadow-2xl hover:shadow-purple-900/40"
+                                   hover:shadow-2xl hover:shadow-purple-900/40
+                                   flex flex-col items-center justify-center text-center"
                     >
                         <h2 className="text-2xl font-semibold text-purple-300 mb-3">
                             Top Productos
                         </h2>
-                        <p className="text-gray-400 text-sm leading-relaxed">
+                        <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
                             Consulta los productos con mejor rendimiento en ventas.
                         </p>
                     </a>

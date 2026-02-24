@@ -7,14 +7,10 @@ export async function GET(req: NextRequest) {
         const page  = Math.max(1, parseInt(searchParams.get("page")  || "1"));
         const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10")));
         const offset = (page - 1) * limit;
-
-        // Total de filas para calcular páginas
         const countResult = await pool.query(
             "SELECT COUNT(*) FROM vw_customer_value"
         );
         const total = parseInt(countResult.rows[0].count);
-
-        // Consulta paginada — solo SELECT sobre VIEW
         const result = await pool.query(
             `SELECT
                 customer_id,

@@ -31,17 +31,32 @@ async function getSalesDaily(date_from?: string, date_to?: string): Promise<Sale
     return res.json();
 }
 
+const PAGE_SIZE = 10;
+
 export default async function SalesReport({
-                                              searchParams,
-                                          }: {
-    searchParams: Promise<{ date_from?: string; date_to?: string }>;
+    searchParams,
+}: {
+    searchParams: Promise<{ date_from?: string; date_to?: string; page?: string }>;
 }) {
     const params = await searchParams;
-    const data = await getSalesDaily(params.date_from, params.date_to);
+    const allData = await getSalesDaily(params.date_from, params.date_to);
 
-    const totalVentas = data.reduce((sum, r) => sum + Number(r.total_ventas), 0);
-    const totalTickets = data.reduce((sum, r) => sum + Number(r.tickets), 0);
+    const currentPage = Math.max(1, parseInt(params.page ?? "1"));
+    const totalPages = Math.max(1, Math.ceil(allData.length / PAGE_SIZE));
+    const safePage = Math.min(currentPage, totalPages);
+
+    const data = allData.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+    const totalVentas = allData.reduce((sum, r) => sum + Number(r.total_ventas), 0);
+    const totalTickets = allData.reduce((sum, r) => sum + Number(r.tickets), 0);
     const ticketProm = totalTickets > 0 ? totalVentas / totalTickets : 0;
+
+    // Build query string for pagination links (preserve date filters)
+    const filterParams = new URLSearchParams();
+    if (params.date_from) filterParams.set("date_from", params.date_from);
+    if (params.date_to) filterParams.set("date_to", params.date_to);
+    const filterStr = filterParams.toString();
+    const pageBase = filterStr ? `?${filterStr}&page=` : `?page=`;
 
     return (
         <div className="min-h-screen bg-black text-lilac-100 px-6 py-10">
@@ -70,7 +85,7 @@ export default async function SalesReport({
                             ${totalVentas.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-lilac-500 mt-1">
-                            {data.length} días con ventas
+                            {allData.length} días con ventas
                         </p>
                     </div>
 
@@ -144,60 +159,89 @@ export default async function SalesReport({
                 <div className="overflow-x-auto border border-lilac-800 rounded-xl">
                     <table className="min-w-full text-sm">
                         <thead className="bg-lilac-900 text-lilac-300 uppercase text-xs tracking-wider">
-                        <tr>
-                            <th className="px-4 py-3 text-left">Fecha</th>
-                            <th className="px-4 py-3 text-right">Tickets</th>
-                            <th className="px-4 py-3 text-right">Total</th>
-                            <th className="px-4 py-3 text-right">Promedio</th>
-                            <th className="px-4 py-3 text-right">Presencial</th>
-                            <th className="px-4 py-3 text-right">Digital</th>
-                            <th className="px-4 py-3 text-right">% Digital</th>
-                        </tr>
+                            <tr>
+                                <th className="px-4 py-3 text-left">Fecha</th>
+                                <th className="px-4 py-3 text-right">Tickets</th>
+                                <th className="px-4 py-3 text-right">Total</th>
+                                <th className="px-4 py-3 text-right">Promedio</th>
+                                <th className="px-4 py-3 text-right">Presencial</th>
+                                <th className="px-4 py-3 text-right">Digital</th>
+                                <th className="px-4 py-3 text-right">% Digital</th>
+                            </tr>
                         </thead>
                         <tbody className="bg-black divide-y divide-lilac-900">
-                        {data.map((row) => {
-                            const pct = Number(row.pct_ventas_digital);
-                            return (
-                                <tr key={row.sale_date} className="hover:bg-lilac-950 transition">
-                                    <td className="px-4 py-3 text-lilac-200">
-                                        {formatDate(row.sale_date)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">{row.tickets}</td>
-                                    <td className="px-4 py-3 text-right text-lilac-300">
-                                        ${Number(row.total_ventas).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        ${Number(row.ticket_promedio).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        ${Number(row.ventas_presencial).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        ${Number(row.ventas_digital).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        {pct.toFixed(1)}%
-                                        <div className="w-16 h-1 bg-lilac-900 rounded-full mt-1 ml-auto">
-                                            <div
-                                                className="h-1 bg-lilac-500 rounded-full"
-                                                style={{ width: `${pct}%` }}
-                                            />
-                                        </div>
+                            {data.map((row) => {
+                                const pct = Number(row.pct_ventas_digital);
+                                return (
+                                    <tr key={row.sale_date} className="hover:bg-lilac-950 transition">
+                                        <td className="px-4 py-3 text-lilac-200">
+                                            {formatDate(row.sale_date)}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">{row.tickets}</td>
+                                        <td className="px-4 py-3 text-right text-lilac-300">
+                                            ${Number(row.total_ventas).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            ${Number(row.ticket_promedio).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            ${Number(row.ventas_presencial).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            ${Number(row.ventas_digital).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            {pct.toFixed(1)}%
+                                            <div className="w-16 h-1 bg-lilac-900 rounded-full mt-1 ml-auto">
+                                                <div
+                                                    className="h-1 bg-lilac-500 rounded-full"
+                                                    style={{ width: `${pct}%` }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+
+                            {allData.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-10 text-lilac-500 italic">
+                                        No hay ventas para este rango de fechas.
                                     </td>
                                 </tr>
-                            );
-                        })}
-
-                        {data.length === 0 && (
-                            <tr>
-                                <td colSpan={7} className="text-center py-10 text-lilac-500 italic">
-                                    No hay ventas para este rango de fechas.
-                                </td>
-                            </tr>
-                        )}
+                            )}
                         </tbody>
                     </table>
                 </div>
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-8">
+                        {safePage > 1 && (
+                            <Link
+                                href={`${pageBase}${safePage - 1}`}
+                                className="px-4 py-2 border border-lilac-800 rounded-lg text-sm text-lilac-300 hover:bg-lilac-900 transition"
+                            >
+                                ← Anterior
+                            </Link>
+                        )}
+
+                        <span className="text-sm text-lilac-400">
+                            Página <span className="text-lilac-200 font-semibold">{safePage}</span> de{" "}
+                            <span className="text-lilac-200 font-semibold">{totalPages}</span>
+                            <span className="text-lilac-600 ml-2">({allData.length} días en total)</span>
+                        </span>
+
+                        {safePage < totalPages && (
+                            <Link
+                                href={`${pageBase}${safePage + 1}`}
+                                className="px-4 py-2 border border-lilac-800 rounded-lg text-sm text-lilac-300 hover:bg-lilac-900 transition"
+                            >
+                                Siguiente →
+                            </Link>
+                        )}
+                    </div>
+                )}
 
             </div>
         </div>
